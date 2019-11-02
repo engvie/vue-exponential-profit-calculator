@@ -69,7 +69,7 @@
               labels: result.stepNumbers,
               datasets: [
                 {
-                  label: 'Start '+ form.start +' | '+ form.percentage + '% | ' + form.steps + ' steps',
+                  label: 'Start '+ form.start +' | '+ form.percentage + '% | ' + form.steps + ' steps | ' + this.total + ' totalt',
                   borderColor: '#007bff',
                   fill: false,
                   data: result.chart,
@@ -142,7 +142,7 @@ export default {
         
         if (i == 1 || i > displaySteps) {
           result.steps.push(item);
-          displaySteps += this.form.displaySteps;
+          displaySteps += parseInt(this.form.displaySteps);
         }
       }
 
@@ -172,21 +172,23 @@ export default {
     },
     removeStored (key) {
       let storage = this.getStorage();
-      storage.splice(1, 1);
+      storage.splice(key, 1);
       this.currentStorageKey = null;
       this.saveStorage(storage);
     },
     setCurrent(key) {
-      if (this.currentStorageKey == key) {
-        this.currentStorageKey = null;
-        return;
+      let setKey = key;
+      if (this.currentStorageKey != key) {
+        let storage = this.getStorage();
+        if (storage[key]) {
+          this.form = storage[key];
+        }
+      } else {
+        setKey = null;
       }
 
-      let storage = this.getStorage();
-      if (storage[key]) {
-        this.currentStorageKey = key;
-        this.form = storage[key];
-      }
+        this.currentStorageKey = setKey;
+        window.localStorage.setItem('currentStorageKey', setKey);
     },
     getTotal(data) {
       return this.formatNumber(data.start * ((1 + parseFloat(data.percentage / 100)) ** data.steps));
@@ -204,7 +206,11 @@ export default {
   },
   mounted () {
     this.setStorage();
-    console.log(this.storage);
+
+    let currentKey = window.localStorage.getItem('currentStorageKey');
+    if (currentKey != null && this.storage[currentKey]) {
+      this.currentStorageKey = parseInt(currentKey);
+    }
   },
 }
 </script>
