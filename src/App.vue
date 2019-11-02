@@ -1,17 +1,18 @@
 <template>
   <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
+    <div class="container">
+      <GrowthCalculator/>
+    </div>
   </div>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+import GrowthCalculator from './components/GrowthCalculator.vue'
 
 export default {
   name: 'app',
   components: {
-    HelloWorld
+    GrowthCalculator
   }
 }
 </script>
