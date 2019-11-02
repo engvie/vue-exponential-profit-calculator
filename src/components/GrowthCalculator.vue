@@ -29,7 +29,7 @@
               </div>
             </div>
             <div class="col-lg-12">
-              <button type="submit" class="btn btn-primary w-100">Spara</button>
+              <button type="submit" class="btn btn-primary w-100">Spara <span v-if="currentStorageKey != null">[{{ currentStorageKey + 1 }}]</span></button>
             </div>
           </div>
         </form>
@@ -39,12 +39,19 @@
           <li
             v-for="(item, key) in storage"
             :key="key"
-            class="list-group-item d-flex justify-content-between"
-            @click="setCurrent(item)"
+            :class="[
+              'list-group-item d-flex',
+              'justify-content-between',
+              {current: key == currentStorageKey}
+            ]"
+            @click="setCurrent(key)"
           >
             <span><i class="fas fa-dollar-sign"></i> {{ item.start }}</span>
             <span><i class="fas fa-shoe-prints"></i> {{ item.steps }}</span>
             <span><i class="fas fa-percentage"></i> {{ item.percentage }}</span>
+            <span class="number">
+              {{ key + 1 }}
+            </span>
             <span class="total">
               {{ getTotal(item) }}
             </span>
@@ -99,6 +106,7 @@ export default {
   data: () => {
     return {
       storage: [],
+      currentStorageKey: null,
       form: {
         start: 10000,
         percentage: 2,
@@ -165,18 +173,31 @@ export default {
     removeStored (key) {
       let storage = this.getStorage();
       storage.splice(1, 1);
+      this.currentStorageKey = null;
       this.saveStorage(storage);
     },
-    setCurrent(form) {
-      console.log(form);
-      this.form = form;
+    setCurrent(key) {
+      if (this.currentStorageKey == key) {
+        this.currentStorageKey = null;
+        return;
+      }
+
+      let storage = this.getStorage();
+      if (storage[key]) {
+        this.currentStorageKey = key;
+        this.form = storage[key];
+      }
     },
     getTotal(data) {
       return this.formatNumber(data.start * ((1 + parseFloat(data.percentage / 100)) ** data.steps));
     },
     save () {
       let storage = this.getStorage();
-      storage.push(this.form);
+      if (this.currentStorageKey != null) {
+        storage[ this.currentStorageKey ] = this.form;
+      } else {
+        this.currentStorageKey = storage.push(this.form) - 1;
+      }
 
       this.saveStorage(storage);
     },
@@ -216,6 +237,13 @@ input {
       border: 1px solid #ccc;
       border-top: none;
     }
+    .number {
+      position: absolute;
+      top: 2px;
+      left: 3px;
+      font-size: 0.7em;
+      font-weight: 600;
+    }
     .remove {
       position: absolute;
       top: 50%;
@@ -228,6 +256,11 @@ input {
       border-left: none;
       color: red;
       cursor: pointer;
+    }
+    &.current {
+      //border-left: 5px solid var(--primary);
+      box-shadow: -5px 0px 0px 0px var(--primary);
+      color: var(--primary);
     }
   }
 }
