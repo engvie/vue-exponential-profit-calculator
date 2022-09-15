@@ -55,7 +55,7 @@
             <span class="total">
               {{ getTotal(item) }}
             </span>
-            <span class="remove" @click="removeStored(key)""><i class="fas fa-trash-alt"></i></span>
+            <span class="remove" @click="removeStored(key)"><i class="fas fa-trash-alt"></i></span>
           </li>
         </ul>
       </div>
